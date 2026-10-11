@@ -1,0 +1,9 @@
+# Not part of the web deployment
+mobile/
+tests/
+.tmp-e2e/
+
+# Secrets stay local; set them in Vercel → Project → Settings → Environment Variables
+.env
+.env.*
+!.env.example
