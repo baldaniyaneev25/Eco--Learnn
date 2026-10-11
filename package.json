@@ -10,9 +10,9 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "seed": "tsx --env-file-if-exists=.env.local scripts/seed.ts",
-    "seed:demo": "tsx --env-file-if-exists=.env.local scripts/seed.ts --demo",
-    "worker": "tsx --env-file-if-exists=.env.local scripts/worker.ts"
+    "seed": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed.ts",
+    "seed:demo": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/seed.ts --demo",
+    "worker": "tsx --env-file-if-exists=.env --env-file-if-exists=.env.local scripts/worker.ts"
   },
   "dependencies": {
     "fast-xml-parser": "^5.11.2",

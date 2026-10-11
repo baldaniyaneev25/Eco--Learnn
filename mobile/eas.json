@@ -7,11 +7,11 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "env": { "EXPO_PUBLIC_API_URL": "https://REPLACE-WITH-YOUR-APP.vercel.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://eco-learnn-ns2u.vercel.app" }
     },
     "production": {
       "autoIncrement": true,
-      "env": { "EXPO_PUBLIC_API_URL": "https://REPLACE-WITH-YOUR-APP.vercel.app" }
+      "env": { "EXPO_PUBLIC_API_URL": "https://eco-learnn-ns2u.vercel.app" }
     }
   },
   "submit": {
