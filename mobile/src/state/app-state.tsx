@@ -1,127 +1,32 @@
 import { createContext, use, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 
-import { api, setAuthToken } from '@/lib/api';
+import { api, setAuthToken, setUnauthorizedHandler } from '@/lib/api';
 import { load, save } from '@/lib/storage';
 import type { Lang, Meta, User } from '@/lib/types';
 
-export interface Preferences {
-  lang: Lang;
-  board: string;
-  classLevel: string;
-}
-
-interface AppState extends Preferences {
+interface AppState {
   ready: boolean;
   user: User | null;
-  meta: Meta | null;
-  updatePrefs: (patch: Partial<Preferences>) => void;
+  lang: Lang;
+  meta: Meta;
+  setLang: (lang: Lang) => void;
+  updateStudy: (patch: { board?: string; classLevel?: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  register: (input: { name: string; email: string; password: string }) => Promise<void>;
+  register: (input: { name: string; email: string; password: string; board: string; classLevel: string }) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
-const DEFAULT_PREFS: Preferences = { lang: 'gu', board: 'GSEB', classLevel: '12' };
-const PREFS_KEY = 'ecolearn.prefs';
+const LANG_KEY = 'ecolearn.lang';
 const TOKEN_KEY = 'ecolearn.token';
+const DEFAULT_META: Meta = { boards: ['GSEB', 'CBSE'], classLevels: ['9', '10', '11', '12'] };
 
 const AppContext = createContext<AppState | null>(null);
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const [prefs, setPrefs] = useState<Preferences>(DEFAULT_PREFS);
   const [user, setUser] = useState<User | null>(null);
-  const [meta, setMeta] = useState<Meta | null>(null);
+  const [lang, setLangState] = useState<Lang>('gu');
+  const [meta, setMeta] = useState<Meta>(DEFAULT_META);
   const [ready, setReady] = useState(false);
-
-  // Restore preferences and session from secure storage, then refresh from the server.
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      const [storedPrefs, token] = await Promise.all([load<Preferences>(PREFS_KEY), load<string>(TOKEN_KEY)]);
-      if (cancelled) return;
-      if (storedPrefs) setPrefs((p) => ({ ...p, ...storedPrefs }));
-      if (token) {
-        setAuthToken(token);
-        try {
-          const { user } = await api<{ user: User | null }>('/api/auth/me');
-          if (!cancelled) setUser(user);
-          if (!user) {
-            setAuthToken(null);
-            await save(TOKEN_KEY, null);
-          }
-        } catch {
-          // offline: keep the token and try again next launch
-        }
-      }
-      if (!cancelled) setReady(true);
-    })();
-    api<Meta>('/api/meta')
-      .then((m) => !cancelled && setMeta(m))
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  const updatePrefs = useCallback(
-    (patch: Partial<Preferences>) => {
-      setPrefs((p) => {
-        const next = { ...p, ...patch };
-        void save(PREFS_KEY, next);
-        return next;
-      });
-      if (user) {
-        void api('/api/auth/me', {
-          method: 'PATCH',
-          json: {
-            ...(patch.board ? { board: patch.board } : {}),
-            ...(patch.classLevel ? { classLevel: patch.classLevel } : {}),
-            ...(patch.lang ? { preferredLanguage: patch.lang } : {}),
-          },
-        }).catch(() => {});
-      }
-    },
-    [user],
-  );
-
-  const startSession = useCallback(async (token: string) => {
-    setAuthToken(token);
-    await save(TOKEN_KEY, token);
-    const { user } = await api<{ user: User | null }>('/api/auth/me');
-    setUser(user);
-    if (user?.preferredLanguage && user.board && user.classLevel) {
-      const next = { lang: user.preferredLanguage, board: user.board, classLevel: user.classLevel };
-      setPrefs(next);
-      await save(PREFS_KEY, next);
-    }
-  }, []);
-
-  const signIn = useCallback(
-    async (email: string, password: string) => {
-      const { token } = await api<{ token: string }>('/api/auth/login', {
-        method: 'POST',
-        json: { email, password, client: 'mobile' },
-      });
-      await startSession(token);
-    },
-    [startSession],
-  );
-
-  const register = useCallback(
-    async (input: { name: string; email: string; password: string }) => {
-      const { token } = await api<{ token: string }>('/api/auth/register', {
-        method: 'POST',
-        json: {
-          ...input,
-          client: 'mobile',
-          board: prefs.board,
-          classLevel: prefs.classLevel,
-          preferredLanguage: prefs.lang,
-        },
-      });
-      await startSession(token);
-    },
-    [prefs, startSession],
-  );
 
   const signOut = useCallback(async () => {
     setAuthToken(null);
@@ -129,9 +34,85 @@ export function AppProvider({ children }: { children: ReactNode }) {
     await save(TOKEN_KEY, null);
   }, []);
 
+  // Restore language and session from secure storage.
+  useEffect(() => {
+    let cancelled = false;
+    setUnauthorizedHandler(() => void signOut());
+    (async () => {
+      const [storedLang, token] = await Promise.all([load<Lang>(LANG_KEY), load<string>(TOKEN_KEY)]);
+      if (cancelled) return;
+      if (storedLang === 'en' || storedLang === 'gu') setLangState(storedLang);
+      if (token) {
+        setAuthToken(token);
+        try {
+          const { user } = await api<{ user: User | null }>('/api/auth/me');
+          if (cancelled) return;
+          if (user) setUser(user);
+          else await signOut();
+        } catch {
+          // Offline: stay signed out for now; the token is kept for the next launch.
+          setAuthToken(null);
+        }
+      }
+      if (!cancelled) setReady(true);
+    })();
+    api<Meta>('/api/meta')
+      .then((m) => !cancelled && setMeta({ boards: m.boards, classLevels: m.classLevels }))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      setUnauthorizedHandler(null);
+    };
+  }, [signOut]);
+
+  const setLang = useCallback(
+    (next: Lang) => {
+      setLangState(next);
+      void save(LANG_KEY, next);
+      if (user) void api('/api/auth/me', { method: 'PATCH', json: { preferredLanguage: next } }).catch(() => {});
+    },
+    [user],
+  );
+
+  /** Board/class decide which chapters and quizzes the server returns. */
+  const updateStudy = useCallback(async (patch: { board?: string; classLevel?: string }) => {
+    const { user: updated } = await api<{ user: User }>('/api/auth/me', { method: 'PATCH', json: patch });
+    setUser((u) => (u ? { ...u, ...updated } : u));
+  }, []);
+
+  const startSession = useCallback(async (token: string) => {
+    setAuthToken(token);
+    await save(TOKEN_KEY, token);
+    const { user } = await api<{ user: User | null }>('/api/auth/me');
+    setUser(user);
+    if (user?.preferredLanguage) {
+      setLangState(user.preferredLanguage);
+      await save(LANG_KEY, user.preferredLanguage);
+    }
+  }, []);
+
+  const signIn = useCallback(
+    async (email: string, password: string) => {
+      const { token } = await api<{ token: string }>('/api/auth/login', { method: 'POST', json: { email, password, client: 'mobile' } });
+      await startSession(token);
+    },
+    [startSession],
+  );
+
+  const register = useCallback(
+    async (input: { name: string; email: string; password: string; board: string; classLevel: string }) => {
+      const { token } = await api<{ token: string }>('/api/auth/register', {
+        method: 'POST',
+        json: { ...input, client: 'mobile', preferredLanguage: lang },
+      });
+      await startSession(token);
+    },
+    [lang, startSession],
+  );
+
   const value = useMemo<AppState>(
-    () => ({ ...prefs, ready, user, meta, updatePrefs, signIn, register, signOut }),
-    [prefs, ready, user, meta, updatePrefs, signIn, register, signOut],
+    () => ({ ready, user, lang, meta, setLang, updateStudy, signIn, register, signOut }),
+    [ready, user, lang, meta, setLang, updateStudy, signIn, register, signOut],
   );
   return <AppContext value={value}>{children}</AppContext>;
 }
@@ -142,7 +123,8 @@ export function useApp(): AppState {
   return ctx;
 }
 
-export function useCategoryLabel() {
-  const { meta, lang } = useApp();
-  return (code: string) => meta?.categories.find((c) => c.code === code)?.label[lang] ?? code;
+/** Changes whenever the student's class/board changes, so study screens reload. */
+export function useStudyKey(): string {
+  const { user } = useApp();
+  return user ? `${user.board}-${user.classLevel}` : 'none';
 }

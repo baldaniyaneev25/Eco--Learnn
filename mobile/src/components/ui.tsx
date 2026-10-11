@@ -30,10 +30,6 @@ export function Badge({ tone = 'neutral', children }: { tone?: Tone; children: R
   );
 }
 
-export function SampleBadge({ lang }: { lang: Lang }) {
-  return <Badge tone="warn">{t('sampleData', lang)}</Badge>;
-}
-
 export function Chip({ label, selected, onPress }: { label: string; selected: boolean; onPress: () => void }) {
   const c = useColors();
   return (
@@ -105,7 +101,21 @@ export function Button({ title, onPress, disabled, variant = 'primary' }: { titl
   );
 }
 
-export function StatusView({ loading, error, empty, lang, onRetry }: { loading: boolean; error: string | null; empty: boolean; lang: Lang; onRetry: () => void }) {
+export function StatusView({
+  loading,
+  error,
+  empty,
+  lang,
+  onRetry,
+  emptyText,
+}: {
+  loading: boolean;
+  error: string | null;
+  empty: boolean;
+  lang: Lang;
+  onRetry: () => void;
+  emptyText?: string;
+}) {
   const c = useColors();
   if (loading) {
     return (
@@ -128,14 +138,52 @@ export function StatusView({ loading, error, empty, lang, onRetry }: { loading: 
   if (empty) {
     return (
       <View style={styles.status}>
-        <Text style={{ color: c.textMuted }}>{t('empty', lang)}</Text>
+        <Text style={{ color: c.textMuted, textAlign: 'center', lineHeight: 20 }}>{emptyText ?? t('empty', lang)}</Text>
       </View>
     );
   }
   return null;
 }
 
+export function Card({ children, onPress, style }: { children: ReactNode; onPress?: () => void; style?: object }) {
+  const c = useColors();
+  const base = [styles.card, { backgroundColor: c.card, borderColor: c.border }, style];
+  if (!onPress) return <View style={base}>{children}</View>;
+  return (
+    <Pressable onPress={onPress} accessibilityRole="button" style={({ pressed }) => [...base, { opacity: pressed ? 0.85 : 1 }]}>
+      {children}
+    </Pressable>
+  );
+}
+
+export function SectionTitle({ children }: { children: ReactNode }) {
+  const c = useColors();
+  return <Text style={[styles.sectionTitle, { color: c.text }]}>{children}</Text>;
+}
+
+export function ProgressBar({ value, total }: { value: number; total: number }) {
+  const c = useColors();
+  const pct = total > 0 ? Math.min(100, Math.round((value / total) * 100)) : 0;
+  return (
+    <View style={[styles.track, { backgroundColor: c.border }]} accessibilityRole="progressbar" accessibilityValue={{ min: 0, max: total, now: value }}>
+      <View style={[styles.fill, { width: `${pct}%`, backgroundColor: c.primary }]} />
+    </View>
+  );
+}
+
+/** Colour tone for a percentage score. */
+export function scoreTone(percent: number | null): Tone {
+  if (percent === null) return 'neutral';
+  if (percent >= 75) return 'primary';
+  if (percent >= 50) return 'warn';
+  return 'danger';
+}
+
 const styles = StyleSheet.create({
+  card: { borderWidth: 1, borderRadius: radius.lg, padding: space.lg, marginHorizontal: space.lg, marginBottom: space.md, gap: space.sm },
+  sectionTitle: { fontSize: 17, fontWeight: '700', marginHorizontal: space.lg, marginTop: space.lg, marginBottom: space.sm },
+  track: { height: 8, borderRadius: 999, overflow: 'hidden' },
+  fill: { height: 8, borderRadius: 999 },
   badge: { borderRadius: radius.sm, paddingHorizontal: space.sm, paddingVertical: 2, alignSelf: 'flex-start' },
   badgeText: { fontSize: 12, fontWeight: '600' },
   chip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: space.md, paddingVertical: 6 },

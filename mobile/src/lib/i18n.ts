@@ -1,60 +1,81 @@
-import type { Lang } from './types';
+import type { Bi, Lang } from './types';
 
 const STRINGS = {
   appName: { en: 'EcoLearn', gu: 'ઇકોલર્ન' },
-  news: { en: 'News', gu: 'સમાચાર' },
-  newsTitle: { en: 'Economics News', gu: 'અર્થશાસ્ત્ર સમાચાર' },
-  affairs: { en: 'Current Affairs', gu: 'વર્તમાન પ્રવાહો' },
-  economy: { en: 'Economy', gu: 'અર્થતંત્ર' },
-  economyTitle: { en: 'Indian Economy', gu: 'ભારતીય અર્થતંત્ર' },
-  resources: { en: 'Resources', gu: 'સંસાધનો' },
-  resourcesTitle: { en: 'Learning Resources', gu: 'અભ્યાસ સંસાધનો' },
+  tagline: { en: 'Economics notes, quizzes and tests', gu: 'અર્થશાસ્ત્રની નોંધો, ક્વિઝ અને ટેસ્ટ' },
+  // Tabs
+  dashboard: { en: 'Dashboard', gu: 'ડેશબોર્ડ' },
+  notes: { en: 'Notes', gu: 'નોંધો' },
+  quizzes: { en: 'Quizzes', gu: 'ક્વિઝ' },
   profile: { en: 'Profile', gu: 'પ્રોફાઇલ' },
-  all: { en: 'All', gu: 'બધા' },
-  source: { en: 'Source', gu: 'સ્ત્રોત' },
-  published: { en: 'Published', gu: 'પ્રકાશિત' },
-  readOriginal: { en: 'Read original at source', gu: 'મૂળ સ્ત્રોત પર વાંચો' },
-  sampleData: { en: 'Sample data', gu: 'નમૂનો ડેટા' },
-  noSourceLink: { en: 'Sample item — no external source', gu: 'નમૂનો — કોઈ બાહ્ય સ્ત્રોત નથી' },
-  translationUnavailable: {
-    en: 'English version not yet reviewed — showing original language.',
-    gu: 'ગુજરાતી અનુવાદ હજુ સમીક્ષા હેઠળ છે — મૂળ ભાષામાં બતાવ્યું છે.',
+  // Dashboard
+  hello: { en: 'Hello', gu: 'નમસ્તે' },
+  notesRead: { en: 'Notes read', gu: 'વાંચેલી નોંધો' },
+  avgScore: { en: 'Average score', gu: 'સરેરાશ ગુણ' },
+  quizzesTaken: { en: 'Quizzes taken', gu: 'આપેલી ક્વિઝ' },
+  testsTaken: { en: 'Tests taken', gu: 'આપેલા ટેસ્ટ' },
+  continueReading: { en: 'Continue reading', gu: 'વાંચન ચાલુ રાખો' },
+  needsPractice: { en: 'Needs more practice', gu: 'વધુ પ્રેક્ટિસની જરૂર' },
+  chapterProgress: { en: 'Chapter progress', gu: 'પ્રકરણ પ્રગતિ' },
+  recentResults: { en: 'Recent results', gu: 'તાજેતરનાં પરિણામો' },
+  noResultsYet: { en: 'No quizzes taken yet. Try a practice quiz!', gu: 'હજુ કોઈ ક્વિઝ આપી નથી. પ્રેક્ટિસ ક્વિઝ આપો!' },
+  noChapters: {
+    en: 'No chapters are published for your class yet. Check your class and board in Profile.',
+    gu: 'તમારા ધોરણ માટે હજુ કોઈ પ્રકરણ પ્રકાશિત નથી. પ્રોફાઇલમાં ધોરણ અને બોર્ડ તપાસો.',
   },
-  translatedNote: {
-    en: 'Translated by EcoLearn editors. Not an official publication of the source.',
-    gu: 'ઇકોલર્ન સંપાદકો દ્વારા અનુવાદિત. સ્ત્રોતનું સત્તાવાર પ્રકાશન નથી.',
+  // Notes
+  chapters: { en: 'Chapters', gu: 'પ્રકરણો' },
+  read: { en: 'read', gu: 'વાંચ્યું' },
+  practiceQuizzes: { en: 'Practice quizzes', gu: 'પ્રેક્ટિસ ક્વિઝ' },
+  markRead: { en: 'Mark as read', gu: 'વાંચ્યું તરીકે ચિહ્નિત કરો' },
+  markReadNext: { en: 'Mark as read & next', gu: 'વાંચ્યું — આગળ' },
+  alreadyRead: { en: 'Read ✓', gu: 'વાંચ્યું ✓' },
+  previous: { en: 'Previous', gu: 'પાછળ' },
+  next: { en: 'Next', gu: 'આગળ' },
+  openPdf: { en: 'Open PDF', gu: 'PDF ખોલો' },
+  otherLanguage: { en: 'Not available in English yet — showing Gujarati.', gu: 'ગુજરાતીમાં હજુ ઉપલબ્ધ નથી — અંગ્રેજીમાં બતાવ્યું છે.' },
+  // Quizzes
+  practice: { en: 'Practice', gu: 'પ્રેક્ટિસ' },
+  tests: { en: 'Tests', gu: 'ટેસ્ટ' },
+  questions: { en: 'questions', gu: 'પ્રશ્નો' },
+  minutes: { en: 'min', gu: 'મિનિટ' },
+  best: { en: 'Best', gu: 'શ્રેષ્ઠ' },
+  attempts: { en: 'attempts', gu: 'પ્રયાસ' },
+  noQuizzes: { en: 'No quizzes available for your class yet.', gu: 'તમારા ધોરણ માટે હજુ કોઈ ક્વિઝ નથી.' },
+  noTests: { en: 'No tests available for your class yet.', gu: 'તમારા ધોરણ માટે હજુ કોઈ ટેસ્ટ નથી.' },
+  start: { en: 'Start', gu: 'શરૂ કરો' },
+  startTest: { en: 'Start test', gu: 'ટેસ્ટ શરૂ કરો' },
+  resumeTest: { en: 'Resume test', gu: 'ટેસ્ટ ફરી શરૂ કરો' },
+  testRules: {
+    en: 'The timer starts when you tap Start and keeps running even if you close the app. Answers are submitted automatically when time is up.',
+    gu: 'Start દબાવતાં જ ટાઈમર શરૂ થશે અને એપ બંધ કરો તો પણ ચાલુ રહેશે. સમય પૂરો થતાં જવાબો આપોઆપ સબમિટ થશે.',
   },
-  summaryNote: {
-    en: 'Summary written by EcoLearn editors. Refer to the source for the full text.',
-    gu: 'સારાંશ ઇકોલર્ન સંપાદકો દ્વારા લખાયેલ છે. સંપૂર્ણ લખાણ માટે સ્ત્રોત જુઓ.',
+  question: { en: 'Question', gu: 'પ્રશ્ન' },
+  of: { en: 'of', gu: 'માંથી' },
+  submit: { en: 'Submit', gu: 'સબમિટ કરો' },
+  submitConfirmTitle: { en: 'Submit answers?', gu: 'જવાબો સબમિટ કરશો?' },
+  unanswered: { en: 'unanswered question(s)', gu: 'પ્રશ્નોના જવાબ બાકી છે' },
+  cancel: { en: 'Cancel', gu: 'રદ કરો' },
+  timeLeft: { en: 'Time left', gu: 'બાકી સમય' },
+  timeUp: { en: 'Time is up — submitting…', gu: 'સમય પૂરો — સબમિટ થઈ રહ્યું છે…' },
+  // Result
+  result: { en: 'Result', gu: 'પરિણામ' },
+  yourScore: { en: 'Your score', gu: 'તમારા ગુણ' },
+  expiredNote: {
+    en: 'This test was submitted after the time limit, so the answers were not counted.',
+    gu: 'આ ટેસ્ટ સમય મર્યાદા પછી સબમિટ થયો હતો, તેથી જવાબો ગણાયા નથી.',
   },
-  loading: { en: 'Loading…', gu: 'લોડ થઈ રહ્યું છે…' },
-  empty: { en: 'Nothing published here yet.', gu: 'અહીં હજુ કંઈ પ્રકાશિત થયું નથી.' },
-  error: { en: 'Could not load data', gu: 'ડેટા લોડ થઈ શક્યો નહીં' },
-  retry: { en: 'Retry', gu: 'ફરી પ્રયાસ કરો' },
-  forClass: { en: 'Class', gu: 'ધોરણ' },
-  referencePeriod: { en: 'Period', gu: 'સમયગાળો' },
-  lastUpdated: { en: 'Updated', gu: 'અપડેટ' },
-  released: { en: 'Released', gu: 'જાહેર' },
-  geography: { en: 'Area', gu: 'વિસ્તાર' },
-  history: { en: 'Show history', gu: 'ઇતિહાસ બતાવો' },
-  hideHistory: { en: 'Hide history', gu: 'ઇતિહાસ છુપાવો' },
-  revisions: { en: 'Earlier published values', gu: 'અગાઉ પ્રકાશિત મૂલ્યો' },
-  indicatorNote: {
-    en: 'Each figure has its own period and source. Do not compare figures from different periods or sources directly.',
-    gu: 'દરેક આંકડાનો પોતાનો સમયગાળો અને સ્ત્રોત છે. જુદા સમયગાળા કે સ્ત્રોતના આંકડા સીધા સરખાવશો નહીં.',
-  },
-  provisional: { en: 'Provisional', gu: 'કામચલાઉ' },
-  estimate: { en: 'Estimate', gu: 'અંદાજ' },
-  revised: { en: 'Revised', gu: 'સુધારેલ' },
-  final: { en: 'Final', gu: 'અંતિમ' },
-  beginner: { en: 'Beginner', gu: 'પ્રારંભિક' },
-  intermediate: { en: 'Intermediate', gu: 'મધ્યમ' },
-  advanced: { en: 'Advanced', gu: 'ઉચ્ચ' },
+  yourAnswer: { en: 'Your answer', gu: 'તમારો જવાબ' },
+  correctAnswer: { en: 'Correct answer', gu: 'સાચો જવાબ' },
+  notAnswered: { en: 'Not answered', gu: 'જવાબ આપ્યો નથી' },
+  explanation: { en: 'Explanation', gu: 'સમજૂતી' },
+  tryAgain: { en: 'Try again', gu: 'ફરી પ્રયાસ કરો' },
+  done: { en: 'Done', gu: 'પૂર્ણ' },
+  // Profile & preferences
   language: { en: 'Language', gu: 'ભાષા' },
   board: { en: 'Board', gu: 'બોર્ડ' },
   class: { en: 'Class', gu: 'ધોરણ' },
-  preferences: { en: 'Preferences', gu: 'પસંદગીઓ' },
+  preferences: { en: 'Study settings', gu: 'અભ્યાસ સેટિંગ્સ' },
   account: { en: 'Account', gu: 'ખાતું' },
   signIn: { en: 'Sign in', gu: 'લૉગિન' },
   signOut: { en: 'Sign out', gu: 'લૉગઆઉટ' },
@@ -65,23 +86,29 @@ const STRINGS = {
   email: { en: 'Email', gu: 'ઇમેઇલ' },
   password: { en: 'Password', gu: 'પાસવર્ડ' },
   passwordHint: { en: 'At least 8 characters', gu: 'ઓછામાં ઓછા 8 અક્ષર' },
-  signedInAs: { en: 'Signed in as', gu: 'લૉગિન થયેલ' },
-  guestNote: {
-    en: 'You can read everything without an account. Sign in to save your preferences across devices.',
-    gu: 'ખાતા વિના પણ બધું વાંચી શકો છો. પસંદગીઓ સાચવવા લૉગિન કરો.',
-  },
   server: { en: 'Server', gu: 'સર્વર' },
-  sampleNotice: {
-    en: 'Items marked “Sample data” are demonstration content, not real publications or official figures.',
-    gu: '“નમૂનો ડેટા” તરીકે ચિહ્નિત સામગ્રી નિદર્શન માટે છે, વાસ્તવિક પ્રકાશન કે સત્તાવાર આંકડા નથી.',
-  },
-  articleTitle: { en: 'Article', gu: 'લેખ' },
+  // Common
+  loading: { en: 'Loading…', gu: 'લોડ થઈ રહ્યું છે…' },
+  error: { en: 'Could not load data', gu: 'ડેટા લોડ થઈ શક્યો નહીં' },
+  retry: { en: 'Retry', gu: 'ફરી પ્રયાસ કરો' },
+  empty: { en: 'Nothing here yet.', gu: 'અહીં હજુ કંઈ નથી.' },
 } satisfies Record<string, Record<Lang, string>>;
 
 export type StringKey = keyof typeof STRINGS;
 
 export function t(key: StringKey, lang: Lang): string {
   return STRINGS[key][lang];
+}
+
+/** Picks the text in the chosen language, falling back to the other one. */
+export function pick(value: Bi | null | undefined, lang: Lang): string {
+  if (!value) return '';
+  return value[lang] || value[lang === 'en' ? 'gu' : 'en'] || '';
+}
+
+/** True when the chosen language is missing and the other one is shown instead. */
+export function isFallback(value: Bi | null | undefined, lang: Lang): boolean {
+  return Boolean(value && !value[lang] && value[lang === 'en' ? 'gu' : 'en']);
 }
 
 export function formatDate(value: string | undefined | null, lang: Lang, withTime = false): string {
@@ -94,8 +121,4 @@ export function formatDate(value: string | undefined | null, lang: Lang, withTim
     year: 'numeric',
     ...(withTime ? { hour: '2-digit', minute: '2-digit' } : {}),
   });
-}
-
-export function formatNumber(value: number, lang: Lang): string {
-  return value.toLocaleString(lang === 'gu' ? 'gu-IN' : 'en-IN', { maximumFractionDigits: 2 });
 }

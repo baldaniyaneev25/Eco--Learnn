@@ -65,3 +65,4 @@ export async function requireRole(req: NextRequest, roles: Role[]): Promise<Auth
 
 export const STAFF: Role[] = ["admin", "editor"];
 export const ADMIN_ONLY: Role[] = ["admin"];
+export const ANY_USER: Role[] = ["student", "editor", "admin"];

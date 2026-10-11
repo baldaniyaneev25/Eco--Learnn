@@ -14,6 +14,7 @@ import { EconomicIndicator } from "@/lib/models/EconomicIndicator";
 import { enqueueSync, runJob } from "@/lib/ingestion/sync";
 import { applyReview } from "@/lib/content/review";
 import { saveTranslation } from "@/lib/content/review";
+import { seedStudyContent } from "@/lib/study/seed-study";
 
 const SOURCES: (Record<string, unknown> & { name: string; isEnabled: boolean })[] = [
   {
@@ -182,6 +183,8 @@ async function demo(adminEmail: string) {
     { $set: { isVerified: true, verifiedBy: adminEmail, verifiedAt: new Date() } },
   );
   console.log(`Demo: approved sample items, verified ${verified.modifiedCount} sample indicator values`);
+  const study = await seedStudyContent(actor);
+  console.log(study.length ? `Study content added: ${study.join(", ")}` : "Study content already present");
 }
 
 main().catch(async (err) => {

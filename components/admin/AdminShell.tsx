@@ -22,6 +22,9 @@ export function useStaff(): StaffUser {
 
 const NAV = [
   { href: "/admin", label: "Overview" },
+  { section: "Study content" },
+  { href: "/admin/study", label: "Chapters & notes" },
+  { href: "/admin/study/quizzes", label: "Quizzes & tests" },
   { section: "Web Data Manager" },
   { href: "/admin/web-data", label: "Data sources" },
   { href: "/admin/web-data/review", label: "Review queue" },

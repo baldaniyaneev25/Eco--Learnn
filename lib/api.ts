@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { z } from "zod";
 import { ReviewError } from "@/lib/content/review";
 import { SyncNotAllowedError } from "@/lib/ingestion/sync";
+import { StudyError } from "@/lib/study/student";
 import { UrlNotAllowedError } from "@/lib/security/url-guard";
 import { clientIp, rateLimit } from "@/lib/security/rate-limit";
 
@@ -35,7 +36,7 @@ export function handle<C>(fn: Handler<C>): Handler<C> {
       if (err instanceof UrlNotAllowedError) {
         return NextResponse.json({ error: err.message }, { status: 400 });
       }
-      if (err instanceof ReviewError || err instanceof SyncNotAllowedError) {
+      if (err instanceof ReviewError || err instanceof SyncNotAllowedError || err instanceof StudyError) {
         return NextResponse.json({ error: err.message }, { status: err.status });
       }
       console.error("[api]", req.method, req.nextUrl.pathname, err);

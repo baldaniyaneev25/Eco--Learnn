@@ -10,10 +10,16 @@ export class ApiError extends Error {
 }
 
 let authToken: string | null = null;
+let onUnauthorized: (() => void) | null = null;
 
 /** Set by the auth state; attached to every request as a Bearer token. */
 export function setAuthToken(token: string | null) {
   authToken = token;
+}
+
+/** Called when the server rejects the saved session (expired or account disabled). */
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler;
 }
 
 /**
@@ -22,7 +28,7 @@ export function setAuthToken(token: string | null) {
  */
 export async function api<T>(path: string, init: { method?: string; json?: unknown; timeoutMs?: number } = {}): Promise<T> {
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), init.timeoutMs ?? 15_000);
+  const timer = setTimeout(() => controller.abort(), init.timeoutMs ?? 20_000);
   let res: Response;
   try {
     res = await fetch(`${API_URL}${path}`, {
@@ -41,11 +47,7 @@ export async function api<T>(path: string, init: { method?: string; json?: unkno
     clearTimeout(timer);
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string };
+  if (res.status === 401 && authToken && !path.startsWith('/api/auth/')) onUnauthorized?.();
   if (!res.ok) throw new ApiError(data.error ?? `Request failed (${res.status})`, res.status);
   return data as T;
-}
-
-export function query(params: Record<string, string | number | undefined | null>): string {
-  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== null && v !== '');
-  return entries.length ? `?${entries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`).join('&')}` : '';
 }
